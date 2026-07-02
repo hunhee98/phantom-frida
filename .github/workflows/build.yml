@@ -137,6 +137,11 @@ jobs:
             echo "########## $f ##########"
             tail -120 "$f"
           done
+          echo "=== offending source: gumexceptor-posix.c around 275-295 ==="
+          for f in $(find build -path '*backend-posix/gumexceptor-posix.c' 2>/dev/null | sort -u); do
+            echo "########## $f ##########"
+            nl -ba "$f" | sed -n '275,295p'
+          done
 
       - name: List artifacts
         run: |
