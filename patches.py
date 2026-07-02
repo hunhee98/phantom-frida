@@ -82,6 +82,11 @@ def get_rollback_patches(name: str) -> list[tuple[str, str]]:
     The global replace catches these, but they're filenames, not runtime artifacts.
     """
     return [
+        # compat/meson.build glib_flavor arg: `have_shared_glib ? 'upstream' : 'frida'`.
+        # The generic 'frida' -> '{name}' source patch clobbers this literal, but the
+        # compat build.py argparse only accepts {upstream,frida}. Restore it.
+        (f"? 'upstream' : '{name}'", "? 'upstream' : 'frida'"),
+
         # Build system files that should keep "frida-agent-" prefix
         (f"{name}-agent-x86.symbols", "frida-agent-x86.symbols"),
         (f"{name}-agent-android.version", "frida-agent-android.version"),
