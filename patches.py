@@ -225,21 +225,26 @@ LIBC_HOOK_PATCHES = {
         ("interceptor.attach", "// interceptor.attach"),
     ],
 
-    # gumexceptor-posix.c: disable signal/sigaction replacement
-    # Verified exact lines in 17.7.2:
-    #   gum_interceptor_replace (interceptor, gum_original_signal,
-    #       gum_exceptor_backend_replacement_signal, self, NULL);
-    #   gum_interceptor_replace (interceptor, gum_original_sigaction,
-    #       gum_exceptor_backend_replacement_sigaction, self, NULL);
+    # gumexceptor-posix.c: disable signal/sigaction replacement.
+    # The call spans two physical lines; both must be commented or the
+    # continuation line dangles ("extraneous ')' before ';'").
+    # The 2nd line's arg list changed across frida versions:
+    #   <=17.8.x:  ..., self, NULL);
+    #   >=17.9.x:  ..., NULL, &options);   (gum_interceptor_replace gained options)
+    # Cover both so the build is version-robust.
     "exceptor": [
         ("gum_interceptor_replace (interceptor, gum_original_signal,",
          "// gum_interceptor_replace (interceptor, gum_original_signal,"),
         ("gum_exceptor_backend_replacement_signal, self, NULL);",
          "// gum_exceptor_backend_replacement_signal, self, NULL);"),
+        ("gum_exceptor_backend_replacement_signal, NULL, &options);",
+         "// gum_exceptor_backend_replacement_signal, NULL, &options);"),
         ("gum_interceptor_replace (interceptor, gum_original_sigaction,",
          "// gum_interceptor_replace (interceptor, gum_original_sigaction,"),
         ("gum_exceptor_backend_replacement_sigaction, self, NULL);",
          "// gum_exceptor_backend_replacement_sigaction, self, NULL);"),
+        ("gum_exceptor_backend_replacement_sigaction, NULL, &options);",
+         "// gum_exceptor_backend_replacement_sigaction, NULL, &options);"),
     ],
 }
 
