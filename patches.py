@@ -43,6 +43,13 @@ def get_source_patches(name: str, cap_name: str) -> list[tuple[str, str]]:
         ("re.frida.helper", f"re.{name}.helper"),
         ("re.frida.Gadget", f"re.{name}.Gadget"),
         ("package re.frida;", f"package re.{name};"),
+        # JNI runtime lookup uses SLASH form. The helper DEX package is renamed to
+        # re.{name}, but this find_class string was missed (only dot-form was covered)
+        # → find_class("re/frida/HelperBackend") returns null → server aborts:
+        #   frida_android_helper_service_do_start: assertion failed (backend_class != null)
+        # Surgical: only HelperBackend. Do NOT touch re/frida/AgentSession etc. — those
+        # are D-Bus protocol interfaces that must stay 're.frida' for client compat.
+        ("re/frida/HelperBackend", f"re/{name}/HelperBackend"),
 
         # --- D-Bus / service identifier ---
         ("re.frida.server", f"re.{name}.server"),
