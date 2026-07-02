@@ -1,5 +1,7 @@
 name: Build Custom Frida
 
+# workflow registration touch (fork enable)
+
 on:
   workflow_dispatch:
     inputs:
